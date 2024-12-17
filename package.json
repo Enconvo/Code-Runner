@@ -1,0 +1,100 @@
+{
+  "$schema": "https://enconvo.com/schemas/extension.json",
+  "name": "code_runner",
+  "version": "0.0.1",
+  "description": "Code Runner",
+  "title": "Code Runner",
+  "icon": "icon.png",
+  "author": "Enconvo",
+  "categories": [
+    "Tool"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "commands": [
+    {
+      "name": "code_runner",
+      "title": "Code Runner",
+      "description": "Run code, shell , nodejs , python , bash, applescript...",
+      "mode": "no-view",
+      "icon": "icon.png",
+      "commandType": "tool",
+      "parameters": {
+        "input_text": {
+          "type": "string",
+          "description": "The text to be translated"
+        },
+        "selection_text": {
+          "type": "string",
+          "description": "The selection text to be translated"
+        }
+      },
+      "preferences": [
+        {
+          "name": "code_environment",
+          "title": "Code Environment",
+          "description": "The code environment",
+          "type": "dropdown",
+          "required": true,
+          "default": "zsh",
+          "data": [
+            {
+              "title": "Zsh",
+              "value": "zsh"
+            },
+            {
+              "title": "Bash",
+              "value": "bash"
+            },
+            {
+              "title": "Nodejs",
+              "value": "nodejs"
+            },
+            {
+              "title": "AppleScript",
+              "value": "applescript"
+            },
+            {
+              "title": "Python",
+              "value": "python"
+            }
+          ]
+        },
+        {
+          "name": "code",
+          "title": "Code",
+          "description": "The code to be run",
+          "type": "multiline_textfield",
+          "required": true,
+          "default": "",
+          "placeholder": "echo 'hello world:'$1"
+        },
+        {
+          "name": "PYTHON_BIN_PATH",
+          "title": "Python Executable Path",
+          "description": "The path to the python executable",
+          "type": "textfield",
+          "required": true,
+          "default": "/usr/local/bin/python3"
+        }
+      ]
+    }
+  ],
+  "devDependencies": {
+    "@enconvo/api": "^0.1.147",
+    "@types/node": "^18.17.14",
+    "eslint": "^8.33.0",
+    "prettier": "^2.8.3",
+    "tsup": "^7.2.0",
+    "typescript": "^5.0.4"
+  },
+  "scripts": {
+    "lint": "eslint src",
+    "lint:fix": "npm run lint --fix",
+    "format": "prettier --write \"**/*.ts\"",
+    "format:check": "prettier --list-different \"**/*.ts\"",
+    "build": "enconvo",
+    "dev": "enconvo --dev"
+  },
+  "minAppVersion": "1.8.8"
+}
