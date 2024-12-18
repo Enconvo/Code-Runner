@@ -80,13 +80,15 @@
       ]
     }
   ],
+  "dependencies": {
+    "@enconvo/api": "^0.1.149"
+  },
   "devDependencies": {
-    "@enconvo/api": "^0.1.147",
-    "@types/node": "^18.17.14",
-    "eslint": "^8.33.0",
-    "prettier": "^2.8.3",
-    "tsup": "^7.2.0",
-    "typescript": "^5.0.4"
+    "@types/node": "^22.10.2",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
   },
   "scripts": {
     "lint": "eslint src",
