@@ -22,11 +22,26 @@
       "parameters": {
         "input_text": {
           "type": "string",
-          "description": "The text to be translated"
+          "description": "The code to be executed or the args to be passed to the code"
         },
-        "selection_text": {
+        "code": {
           "type": "string",
-          "description": "The selection text to be translated"
+          "description": "The code to be executed"
+        },
+        "args": {
+          "type": "string",
+          "description": "The args to be passed to the code"
+        },
+        "code_environment": {
+          "type": "string",
+          "description": "The code environment to be executed on",
+          "enum": [
+            "zsh",
+            "bash",
+            "nodejs",
+            "applescript",
+            "python"
+          ]
         }
       },
       "preferences": [
@@ -78,10 +93,76 @@
           "default": "/usr/local/bin/python3"
         }
       ]
+    },
+    {
+      "name": "shell_script_executor",
+      "title": "Shell Script Executor",
+      "description": "Run shell scripts",
+      "mode": "no-view",
+      "icon": "icon.png",
+      "commandType": "tool",
+      "parameters": {
+        "input_text": {
+          "type": "string",
+          "description": "The code to be executed or the args to be passed to the code"
+        },
+        "shell_script": {
+          "type": "string",
+          "description": "The shell script to be executed, will be executed with `execFileSync('/bin/zsh', ['-c', shell_script], { env: process.env })` using nodejs"
+        },
+        "args": {
+          "type": "string",
+          "description": "The args to be passed to the shell script"
+        }
+      },
+      "preferences": [
+        {
+          "name": "shell_script",
+          "title": "Shell Script",
+          "description": "The shell script to be run",
+          "type": "multiline_textfield",
+          "required": true,
+          "default": "",
+          "placeholder": "echo 'hello world:'$1"
+        }
+      ]
+    },
+    {
+      "name": "applescript_executor",
+      "title": "AppleScript Executor",
+      "description": "Run applescript",
+      "mode": "no-view",
+      "icon": "icon.png",
+      "commandType": "tool",
+      "parameters": {
+        "input_text": {
+          "type": "string",
+          "description": "The code to be executed or the args to be passed to the code"
+        },
+        "applescript": {
+          "type": "string",
+          "description": "The applescript to be executed, will be executed with `execFileSync('osascript', ['-e', applescript], { env: process.env })` using nodejs"
+        },
+        "args": {
+          "type": "string",
+          "description": "The args to be passed to the applescript"
+        }
+      },
+      "preferences": [
+        {
+          "name": "applescript",
+          "title": "AppleScript",
+          "description": "The applescript to be run",
+          "type": "multiline_textfield",
+          "required": true,
+          "default": "",
+          "placeholder": "echo 'hello world:'$1"
+        }
+      ]
     }
   ],
   "dependencies": {
-    "@enconvo/api": "^0.1.149"
+    "@enconvo/api": "^0.1.159"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
