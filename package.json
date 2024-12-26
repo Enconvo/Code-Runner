@@ -19,6 +19,7 @@
       "mode": "no-view",
       "icon": "icon.png",
       "commandType": "tool",
+      "showInCommandList": false,
       "parameters": {
         "input_text": {
           "type": "string",
@@ -153,6 +154,39 @@
           "name": "applescript",
           "title": "AppleScript",
           "description": "The applescript to be run",
+          "type": "multiline_textfield",
+          "required": true,
+          "default": "",
+          "placeholder": "echo 'hello world:'$1"
+        }
+      ]
+    },
+    {
+      "name": "python_code_runner",
+      "title": "Python Code Runner",
+      "description": "Run python code",
+      "mode": "no-view",
+      "icon": "python.png",
+      "commandType": "tool",
+      "parameters": {
+        "input_text": {
+          "type": "string",
+          "description": "The code to be executed or the args to be passed to the code"
+        },
+        "python_code": {
+          "type": "string",
+          "description": "The python code to be executed, will be executed with `execFileSync('python', ['-c', python_code], { env: process.env })` using nodejs"
+        },
+        "args": {
+          "type": "string",
+          "description": "The args to be passed to the python code"
+        }
+      },
+      "preferences": [
+        {
+          "name": "python_code",
+          "title": "Python Code",
+          "description": "The python code to be run",
           "type": "multiline_textfield",
           "required": true,
           "default": "",

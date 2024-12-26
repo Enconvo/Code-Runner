@@ -22,7 +22,7 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
         ] : []
     }
 
-    const args = argv.map(arg => `"${arg}"`).join(' ').trim()
+    const args = argv.filter(arg => arg && arg.trim().length > 0).map(arg => `"${arg}"`).join(' ').trim()
 
     const newCode = `${shell_script} ${args}`
     console.log('newCode', newCode);
@@ -31,6 +31,7 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
         env: process.env
     });
 
-    console.log('result', result.toString());
-    return result.toString();
+    const resultStr = result.toString()
+    console.log('result', resultStr);
+    return resultStr || 'executed';
 }
