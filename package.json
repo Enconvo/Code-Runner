@@ -1,7 +1,7 @@
 {
   "$schema": "https://enconvo.com/schemas/extension.json",
   "name": "code_runner",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Code Runner",
   "title": "Code Runner",
   "icon": "icon.png",
@@ -191,12 +191,30 @@
           "required": true,
           "default": "",
           "placeholder": "echo 'hello world:'$1"
+        },
+        {
+          "name": "python_interpreter",
+          "description": "The python interpreter to be used",
+          "type": "dropdown",
+          "required": false,
+          "title": "Python Interpreter",
+          "default": "",
+          "dataProxy": "code_runner|python_interpreters"
         }
       ]
+    },
+    {
+      "name": "python_interpreters",
+      "title": "Python Interpreter",
+      "description": "Get all Python interpreter path",
+      "icon": "python.png",
+      "showInCommandList": false,
+      "mode": "no-view",
+      "preferences": []
     }
   ],
   "dependencies": {
-    "@enconvo/api": "^0.1.159"
+    "@enconvo/api": "^0.1.160"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

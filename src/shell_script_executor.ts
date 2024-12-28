@@ -1,5 +1,5 @@
 import { EnconvoResponse, RequestOptions } from '@enconvo/api';
-import { execFileSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
 
 interface Options extends RequestOptions {
     shell_script: string,
@@ -27,11 +27,16 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
     const newCode = `${shell_script} ${args}`
     console.log('newCode', newCode);
 
-    const result = execFileSync('/bin/zsh', ['-c', newCode], {
+    const venvPath = '/Users/ysnows/.config/enconvo/extension/node_modules/@enconvo/server/hello';
+
+    // 将所有命令组合在一起，在同一个 bash 进程中执行
+    const command = `source bin/activate && /bin/bash -c "${newCode}"`;
+    const result = execSync(command, {
+        shell: '/bin/bash',
+        cwd: venvPath,
         env: process.env
     });
 
     const resultStr = result.toString()
-    console.log('result', resultStr);
-    return resultStr || 'executed';
+    return resultStr || 'Shell Script Executed without any error';
 }

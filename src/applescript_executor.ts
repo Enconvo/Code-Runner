@@ -25,13 +25,11 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
     const args = argv.filter(arg => arg && arg.trim().length > 0).map(arg => `"${arg}"`).join(' ').trim()
 
     const newCode = `${applescript} ${args}`
-    console.log('newCode', newCode);
 
     const result = execFileSync('osascript', ['-e', `${newCode}`], {
         env: process.env
     });
 
     const resultStr = result.toString()
-    console.log('result', resultStr);
-    return resultStr || 'executed';
+    return resultStr || 'AppleScript Executed without any error';
 }

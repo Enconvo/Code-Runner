@@ -30,7 +30,7 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
     const venvPath = '/Users/ysnows/.config/enconvo/extension/node_modules/@enconvo/server/hello';
 
     // 将所有命令组合在一起，在同一个 bash 进程中执行
-    const command = `source bin/activate && python -c '${newCode}'`;
+    const command = `source bin/activate && python -c "${newCode}"`;
     const result = execSync(command, {
         shell: '/bin/bash',
         cwd: venvPath,
@@ -38,6 +38,5 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
     });
 
     const resultStr = result.toString()
-    console.log('result', resultStr);
-    return resultStr || 'executed';
+    return resultStr || 'Python code executed without errors';
 }
