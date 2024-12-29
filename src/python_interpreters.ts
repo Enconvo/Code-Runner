@@ -1,46 +1,149 @@
-import { DropdownListCache } from "@enconvo/api"
-import { exec } from 'child_process';
+import { DropdownListCache, environment, Extension } from "@enconvo/api"
+import { exec, execSync } from 'child_process';
 import { promisify } from 'util';
+import * as fs from 'fs';
+
 const execPromise = promisify(exec);
 
-const models: DropdownListCache.ModelOutput[] = [
-    {
-        "title": "Gemini 2.0 Flash Exp",
-        "value": "gemini-2.0-flash-exp",
-        "context": 1048576,
-        "visionEnable": true
-    },
-    {
-        "title": "Gemini 2.0 Flash Thinking",
-        "value": "gemini-2.0-flash-thinking-exp-1219",
-        "context": 1048576,
-        "visionEnable": true
-    },
-    {
-        "title": "Gemini Exp 1206",
-        "value": "gemini-exp-1206",
-        "context": 1048576,
-        "visionEnable": true
-    },
-    {
-        "title": "Gemini 1.5 Flash-8B",
-        "value": "gemini-1.5-flash-8b",
-        "context": 1048576,
-        "visionEnable": true
-    },
-    {
-        "title": "Gemini 1.5 Flash 002",
-        "value": "gemini-1.5-flash-002",
-        "context": 1048576,
-        "visionEnable": true
-    },
-    {
-        "title": "Gemini 1.5 Pro 002",
-        "value": "gemini-1.5-pro-002",
-        "context": 2097152,
-        "visionEnable": true
+interface PythonInterpreter {
+    version: string;
+    path: string;
+    name?: string;
+    bits?: string;
+}
+
+async function findSystemPythonPaths(): Promise<string[]> {
+    try {
+        // Get all potential Python paths from common locations
+        const { stdout: whichPython3 } = await execPromise('which -a python3 2>/dev/null || true');
+        const { stdout: whichPython } = await execPromise('which -a python 2>/dev/null || true');
+
+        // Get Homebrew Python paths
+        const { stdout: homebrewPaths } = await execPromise('ls -1 /opt/homebrew/bin/python* 2>/dev/null || true');
+
+        // Get conda environments if conda is installed
+        let condaPaths: string[] = [];
+        try {
+            const { stdout: condaInfo } = await execPromise('conda info --envs 2>/dev/null || true');
+            condaPaths = condaInfo
+                .split('\n')
+                .slice(2) // Skip header lines
+                .filter(line => line.trim())
+                .map(line => {
+                    const [name, path] = line.trim().split(/\s+/);
+                    return path ? `${path}/bin/python` : null;
+                })
+                .filter((path): path is string => path !== null);
+        } catch (error) {
+            // Conda not installed or not accessible
+        }
+
+        // Get poetry environments
+        let poetryPaths: string[] = [];
+        try {
+            const { stdout: poetryEnvs } = await execPromise('poetry env list --full-path 2>/dev/null || true');
+            poetryPaths = poetryEnvs
+                .split('\n')
+                .filter(line => line.trim())
+                .map(line => `${line.trim()}/bin/python`);
+        } catch (error) {
+            // Poetry not installed or not accessible
+        }
+
+        // Combine all paths and remove duplicates
+        const allPaths = [...new Set([
+            ...whichPython3.split('\n'),
+            ...whichPython.split('\n'),
+            ...homebrewPaths.split('\n'),
+            ...condaPaths,
+            ...poetryPaths
+        ].filter(path => path.trim()))]
+
+        return allPaths;
+    } catch (error) {
+        console.error('Error finding Python paths:', error);
+        return [];
     }
-]
+}
+
+
+export async function findPythonInterpreters(options: { extensionName?: string, commandName?: string }): Promise<PythonInterpreter[]> {
+    const interpreters: PythonInterpreter[] = [];
+
+    try {
+
+        let pythonPaths = await findSystemPythonPaths();
+
+        const cachePath = Extension.getCommandCachePath(options.extensionName || '', options.commandName || '')
+        const venvPath = `${cachePath}/venv`
+
+        // Check if the venv directory exists
+        if (!fs.existsSync(venvPath)) {
+            const newCode = `python -m venv venv`
+            const command = `/bin/bash -c "${newCode}"`;
+            const result = execSync(command, {
+                shell: '/bin/bash',
+                cwd: cachePath,
+                env: process.env
+            });
+
+            const resultStr = result.toString()
+            console.log('resultStr', resultStr);
+        }
+
+        pythonPaths.unshift(`${venvPath}/bin/python`)
+
+        for (const path of pythonPaths) {
+            try {
+                // Get version and architecture information
+                const { stdout: versionOutput } = await execPromise(`${path} -c "import sys, platform; print(sys.version.split()[0] + ' ' + platform.architecture()[0])"`);
+                const [version, bits] = versionOutput.trim().split(' ');
+
+                // Try to determine if this is a virtual environment
+                let name: string | undefined;
+                try {
+                    const { stdout: envInfo } = await execPromise(`${path} -c "import sys; print('venv' if hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix) else '')"`);
+                    if (envInfo.trim() === 'venv') {
+                        name = 'venv';
+                    }
+                } catch (error) {
+                    // Unable to determine virtual environment status
+                }
+
+                interpreters.push({
+                    version,
+                    path,
+                    name,
+                    bits
+                });
+            } catch (error) {
+                // Skip if Python not found at this path or other errors
+                continue;
+            }
+        }
+
+        // Sort interpreters by version number in descending order
+        // interpreters.sort((a, b) => {
+        //     const versionA = a.version.split('.').map(Number);
+        //     const versionB = b.version.split('.').map(Number);
+
+        //     for (let i = 0; i < Math.max(versionA.length, versionB.length); i++) {
+        //         const numA = versionA[i] || 0;
+        //         const numB = versionB[i] || 0;
+        //         if (numA !== numB) {
+        //             return numB - numA;
+        //         }
+        //     }
+        //     return 0;
+        // });
+
+
+        return interpreters;
+    } catch (error) {
+        console.error('Error finding Python interpreters:', error);
+        return [];
+    }
+}
 
 /**
  * Fetches models from the API and transforms them into ModelOutput format
@@ -48,80 +151,31 @@ const models: DropdownListCache.ModelOutput[] = [
  * @param api_key - API authentication key
  * @returns Promise<ModelOutput[]> - Array of processed model data
  */
-async function fetchModels(url: string, api_key: string, type: string): Promise<DropdownListCache.ModelOutput[]> {
-    // console.log("fetchModels", url, api_key, type)
-    try {
+async function fetchModels(url: string, api_key: string, type: string, extensionName?: string, commandName?: string): Promise<DropdownListCache.ModelOutput[]> {
 
+    try {
+        const interpreters = await findPythonInterpreters({ extensionName, commandName })
+
+        const formattedInterpreters = interpreters.map(async interpreter => ({
+            title: await formatInterpreterDisplay(interpreter),
+            value: interpreter.path,
+            description: interpreter.path
+        }))
+
+        const models = await Promise.all(formattedInterpreters)
         return models
+
     } catch (error) {
         console.error('Error fetching models:', error)
         return []
     }
 }
 
-async function findPythonInterpreters(): Promise<Array<{version: string, path: string, name?: string}>> {
-    const commonPaths = [
-        '/usr/bin/python3',
-        '/usr/local/bin/python3',
-        '/opt/homebrew/bin/python3',
-        '/opt/homebrew/bin/python3.10',
-        '/opt/homebrew/bin/python3.11',
-        '/opt/homebrew/bin/python3.12',
-        '/var/miniconda3/bin/python',
-        '~/Library/Application Support/pypoetry/venv/bin/python'
-    ];
-
-    const interpreters: Array<{version: string, path: string, name?: string}> = [];
-
-    try {
-        // Run command to get Python version for each path
-        for (const path of commonPaths) {
-            try {
-                const { stdout } = await execPromise(`${path} --version`);
-                const version = stdout.trim().replace('Python ', '');
-                interpreters.push({
-                    version,
-                    path,
-                });
-            } catch (error) {
-                // Skip if Python not found at this path
-                continue;
-            }
-        }
-
-        // Check for conda environments
-        try {
-            const { stdout: condaList } = await execPromise('conda env list');
-            const envLines = condaList.split('\n').slice(2); // Skip header lines
-            
-            for (const line of envLines) {
-                if (line.trim()) {
-                    const [name, path] = line.trim().split(/\s+/);
-                    if (path) {
-                        const pythonPath = `${path}/bin/python`;
-                        try {
-                            const { stdout } = await execPromise(`${pythonPath} --version`);
-                            const version = stdout.trim().replace('Python ', '');
-                            interpreters.push({
-                                version,
-                                path: pythonPath,
-                                name: `conda:${name}`
-                            });
-                        } catch (error) {
-                            continue;
-                        }
-                    }
-                }
-            }
-        } catch (error) {
-            // Conda not installed, skip
-        }
-
-        return interpreters;
-    } catch (error) {
-        console.error('Error finding Python interpreters:', error);
-        return [];
-    }
+async function formatInterpreterDisplay(interpreter: PythonInterpreter): Promise<string> {
+    const version = interpreter.version;
+    const bits = interpreter.bits ? ` ${interpreter.bits}` : '';
+    const name = interpreter.name ? ` ('${interpreter.name}')` : '';
+    return `Python ${version}${bits}${name} ${interpreter.path}`;
 }
 
 /**
@@ -135,9 +189,8 @@ export default async function main(req: Request): Promise<string> {
     const modelCache = new DropdownListCache(fetchModels)
 
     const models = await modelCache.getModelsCache({
-        ...options,
-        input_text: 'refresh'
+        ...options
     })
-    
+
     return JSON.stringify(models)
 }

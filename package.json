@@ -190,16 +190,7 @@
           "type": "multiline_textfield",
           "required": true,
           "default": "",
-          "placeholder": "echo 'hello world:'$1"
-        },
-        {
-          "name": "python_interpreter",
-          "description": "The python interpreter to be used",
-          "type": "dropdown",
-          "required": false,
-          "title": "Python Interpreter",
-          "default": "",
-          "dataProxy": "code_runner|python_interpreters"
+          "placeholder": "print('hello world')"
         }
       ]
     },
@@ -214,7 +205,7 @@
     }
   ],
   "dependencies": {
-    "@enconvo/api": "^0.1.160"
+    "@enconvo/api": "link:/Users/ysnows/Documents/Project/enconvo.nodejs/enconvo_api"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

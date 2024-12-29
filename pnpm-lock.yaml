@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@enconvo/api':
-        specifier: ^0.1.160
-        version: 0.1.160
+        specifier: link:/Users/ysnows/Documents/Project/enconvo.nodejs/enconvo_api
+        version: link:../../enconvo.nodejs/enconvo_api
     devDependencies:
       '@types/node':
         specifier: ^22.10.2
@@ -29,10 +29,6 @@ importers:
         version: 5.7.2
 
 packages:
-
-  '@enconvo/api@0.1.160':
-    resolution: {integrity: sha512-dIQ2NxUp+3Q1+fg4RFlWo5lj6S5HvhtLEobF7c0K7I+uLHeNXxbZmaKGo4h3PDsZHIKVU8SmQ4hLzuWTLdavlA==}
-    hasBin: true
 
   '@esbuild/aix-ppc64@0.24.0':
     resolution: {integrity: sha512-WtKdFM7ls47zkKHFVzMz8opM7LkcsIp9amDUBIAWirg70RM71WRSjdILPsY5Uv1D42ZpUfaPILDlfactHgsRkw==}
@@ -902,8 +898,6 @@ packages:
     engines: {node: '>=10'}
 
 snapshots:
-
-  '@enconvo/api@0.1.160': {}
 
   '@esbuild/aix-ppc64@0.24.0':
     optional: true
