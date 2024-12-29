@@ -1,7 +1,7 @@
 import { Action, EnconvoResponse, environment, Extension, RequestOptions, res } from '@enconvo/api';
 import { execSync, spawn } from 'child_process';
 import fs from "fs"
-import { getPythonEnv } from './python_util.ts';
+import { getProjectEnv, getPythonEnv } from './utils/env_util.ts';
 
 interface Options extends RequestOptions {
     python_code: string,
@@ -36,24 +36,23 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
 
     const venvPath = getPythonEnv(options)
 
-    // 将所有命令组合在一起，在同一个 bash 进程中执行
-    const command = `source bin/activate && python -c "${newCode}"`;
+    const command = `source ${venvPath}/bin/activate && python -c "${newCode}"`;
 
+    const projectPath = getProjectEnv(options)
     const child = spawn('/bin/bash', ['-c', command], {
-        cwd: venvPath,
+        cwd: projectPath,
         env: process.env
     });
 
     let output = '';
     child.stdout.on('data', async (data) => {
         const chunk = data.toString();
-        console.log(chunk);
+        output += chunk;
 
-        await res.write({
+        res.write({
             content: chunk,
             action: res.WriteAction.AppendToLastMessageLastTextContent
         })
-        output += chunk;
     });
 
     child.stderr.on('data', (data) => {
@@ -66,17 +65,16 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
         output += chunk;
     });
 
-    const result = await new Promise<Buffer>((resolve, reject) => {
+    const result = await new Promise<{ code: number, output: string }>((resolve, reject) => {
         child.on('close', (code) => {
-            if (code === 0) {
-                resolve(Buffer.from(output));
-            } else {
-                reject(new Error(`Process exited with code ${code}`));
-            }
+            resolve({
+                code: code || 0,
+                output
+            });
         });
     });
 
-    const resultStr = result.toString()
+    const resultStr = result.output
 
     const finalResult = resultStr || 'Shell Script Executed without any error'
 

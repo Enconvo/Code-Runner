@@ -195,6 +195,39 @@
       ]
     },
     {
+      "name": "nodejs_code_runner",
+      "title": "NodeJS Code Runner",
+      "description": "Run nodejs code",
+      "mode": "no-view",
+      "icon": "nodejs.png",
+      "commandType": "tool",
+      "parameters": {
+        "input_text": {
+          "type": "string",
+          "description": "The code to be executed or the args to be passed to the code"
+        },
+        "nodejs_code": {
+          "type": "string",
+          "description": "The nodejs code to be executed, will be executed with `execFileSync('node', ['-e', nodejs_code], { env: process.env })` using nodejs"
+        },
+        "args": {
+          "type": "string",
+          "description": "The args to be passed to the nodejs code"
+        }
+      },
+      "preferences": [
+        {
+          "name": "nodejs_code",
+          "title": "NodeJS Code",
+          "description": "The nodejs code to be run",
+          "type": "multiline_textfield",
+          "required": true,
+          "default": "",
+          "placeholder": "print('hello world')"
+        }
+      ]
+    },
+    {
       "name": "python_interpreters",
       "title": "Python Interpreter",
       "description": "Get all Python interpreter path",
