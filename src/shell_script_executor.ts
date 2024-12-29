@@ -1,6 +1,7 @@
 import { Action, EnconvoResponse, RequestOptions, res } from '@enconvo/api';
 import { spawn } from 'child_process';
 import { getProjectEnv, getPythonEnv } from './utils/env_util.ts';
+import fs from "fs"
 
 interface Options extends RequestOptions {
     shell_script: string,
@@ -25,13 +26,18 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
 
     const args = argv.filter(arg => arg && arg.trim().length > 0).map(arg => `"${arg}"`).join(' ').trim()
 
-    const newCode = `${shell_script} ${args}`
+    const newCode = `${shell_script}`
 
     const venvPath = getPythonEnv(options)
 
-    const command = `source ${venvPath}/bin/activate && /bin/bash -c '${newCode}'`;
 
     const projectPath = getProjectEnv(options)
+
+    const shellFilePath = `${projectPath}/temp_script.sh`;
+    fs.writeFileSync(shellFilePath, newCode);
+
+    const command = `source ${venvPath}/bin/activate && /bin/bash '${shellFilePath}' ${args}`;
+
     const child = spawn('/bin/bash', ['-c', command], {
         cwd: projectPath,
         env: process.env

@@ -1,6 +1,7 @@
 import { Action, EnconvoResponse, RequestOptions, res } from '@enconvo/api';
 import { spawn } from 'child_process';
 import { getProjectEnv } from './utils/env_util.ts';
+import fs from "fs"
 
 interface Options extends RequestOptions {
     nodejs_code: string,
@@ -25,14 +26,17 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
 
     const args = argv.filter(arg => arg && arg.trim().length > 0).map(arg => `"${arg}"`).join(' ').trim()
 
-    let newCode = `${nodejs_code} ${args}`
-    console.log('newCode', newCode);
-
-
-    // 将所有命令组合在一起，在同一个 bash 进程中执行
-    const command = `node -e "${newCode}"`;
+    let newCode = `${nodejs_code}`
 
     const projectPath = getProjectEnv(options)
+
+    const nodejsFilePath = `${projectPath}/temp_script.js`;
+    fs.writeFileSync(nodejsFilePath, newCode);
+
+    const nodejsPath = process.env.NODE_PATH || 'node';
+
+    const command = `${nodejsPath} ${nodejsFilePath} ${args}`;
+    console.log('command', command);
 
     const child = spawn('/bin/bash', ['-c', command], {
         cwd: projectPath,

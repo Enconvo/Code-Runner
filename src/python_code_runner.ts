@@ -30,15 +30,16 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
 
     const args = argv.filter(arg => arg && arg.trim().length > 0).map(arg => `"${arg}"`).join(' ').trim()
 
-    let newCode = `${python_code} ${args}`
-    console.log('newCode', newCode);
+    const newCode = `${python_code}`;
 
+    const venvPath = getPythonEnv(options);
+    const projectPath = getProjectEnv(options);
 
-    const venvPath = getPythonEnv(options)
+    const pythonFilePath = `${projectPath}/temp_script.py`;
+    fs.writeFileSync(pythonFilePath, newCode);
 
-    const command = `source ${venvPath}/bin/activate && python -c "${newCode}"`;
+    const command = `source ${venvPath}/bin/activate && python ${pythonFilePath} ${args}`;
 
-    const projectPath = getProjectEnv(options)
     const child = spawn('/bin/bash', ['-c', command], {
         cwd: projectPath,
         env: process.env
