@@ -109,7 +109,7 @@
         },
         "shell_script": {
           "type": "string",
-          "description": "The shell script to be executed, will be executed with `execFileSync('/bin/zsh', ['-c', shell_script], { env: process.env })` using nodejs"
+          "description": "The shell script to be executed, will be executed with `execFileSync('/bin/zsh', ['-c', shell_script], { env: process.env })` using nodejs, Since you can't interact with it, you have to use -y or --yes or a parameter to specify the default parameter for some commands, such as npm init -y, or npx create-next-app@latest project_name --yes;"
         },
         "args": {
           "type": "string",
@@ -235,10 +235,22 @@
       "showInCommandList": false,
       "mode": "no-view",
       "preferences": []
+    },
+    {
+      "name": "install_python",
+      "title": "Install Python",
+      "description": "Install python",
+      "mode": "no-view",
+      "icon": "icon.png",
+      "commandType": "tool",
+      "parameters": {},
+      "preferences": []
     }
   ],
   "dependencies": {
-    "@enconvo/api": "link:/Users/ysnows/Documents/Project/enconvo.nodejs/enconvo_api"
+    "@enconvo/api": "link:/Users/ysnows/Documents/Project/enconvo.nodejs/enconvo_api",
+    "@lydell/node-pty": "^1.0.3",
+    "axios": "^1.7.9"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

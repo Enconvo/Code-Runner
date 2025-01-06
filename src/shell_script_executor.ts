@@ -1,7 +1,8 @@
 import { Action, EnconvoResponse, RequestOptions, res } from '@enconvo/api';
-import { spawn } from 'child_process';
+import { execSync, spawn } from 'child_process';
 import { getProjectEnv, getPythonEnv } from './utils/env_util.ts';
 import fs from "fs"
+import path from 'path';
 
 interface Options extends RequestOptions {
     shell_script: string,
@@ -28,17 +29,48 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
 
     const newCode = `${shell_script}`
 
+    /**
+     * set venv
+     */
     const venvPath = getPythonEnv(options)
+    let sourceVenv = ''
+    if (venvPath) {
+        sourceVenv = `source ${venvPath}/bin/activate && `
+    }
 
-
+    /**
+     * set project path
+     */
     const projectPath = getProjectEnv(options)
 
+    /**
+     * write shell script
+     */
     const shellFilePath = `${projectPath}/temp_script.sh`;
     fs.writeFileSync(shellFilePath, newCode);
 
-    const command = `source ${venvPath}/bin/activate && /bin/bash '${shellFilePath}' ${args}`;
+    /**
+     * set shell
+     */
+    const shell = process.env.SHELL || '/bin/bash'
 
-    const child = spawn('/bin/bash', ['-c', command], {
+
+    /**
+     * set node path
+     */
+    let exportPath = '';
+    try {
+        execSync('node -v', { stdio: 'ignore' });
+    } catch (error) {
+        const nodePath = path.dirname(process.env.NODE_PATH!);
+        console.log('Setting NODE_PATH:', nodePath, shell);
+        exportPath = `export PATH="${nodePath}:$PATH" && `;
+    }
+
+
+    const command = `${exportPath} ${sourceVenv} ${shell} '${shellFilePath}' ${args}`;
+
+    const child = spawn(shell, ['-c', command], {
         cwd: projectPath,
         env: process.env
     });

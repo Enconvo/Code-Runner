@@ -31,7 +31,6 @@ export function getProjectEnv(options: RequestOptions) {
     return projectPath
 }
 
-
 export function getPythonEnv(options: RequestOptions) {
 
     let extensionName = options.extensionName || ''
@@ -61,14 +60,18 @@ export function getPythonEnv(options: RequestOptions) {
     if (!fs.existsSync(venvPath)) {
         const newCode = `python -m venv venv`
         const command = `/bin/bash -c "${newCode}"`;
-        const result = execSync(command, {
-            shell: '/bin/bash',
-            cwd: cachePath,
-            env: process.env
-        });
-
-        const resultStr = result.toString()
-        console.log('resultStr', resultStr);
+        try {
+            const result = execSync(command, {
+                shell: '/bin/bash',
+                cwd: cachePath,
+                env: process.env
+            });
+            const resultStr = result.toString()
+            console.log('resultStr', resultStr);
+        } catch (error) {
+            console.log('error', error)
+            return undefined
+        }
     }
 
     console.log('venvPath', venvPath);
