@@ -32,7 +32,7 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
 
     const newCode = `${python_code}`;
 
-    const venvPath = getPythonEnv(options);
+    const venvPath = await getPythonEnv(options);
     const projectPath = getProjectEnv(options);
 
     const pythonFilePath = `${projectPath}/temp_script.py`;

@@ -235,16 +235,6 @@
       "showInCommandList": false,
       "mode": "no-view",
       "preferences": []
-    },
-    {
-      "name": "install_python",
-      "title": "Install Python",
-      "description": "Install python",
-      "mode": "no-view",
-      "icon": "icon.png",
-      "commandType": "tool",
-      "parameters": {},
-      "preferences": []
     }
   ],
   "dependencies": {

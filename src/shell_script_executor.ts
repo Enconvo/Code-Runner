@@ -32,7 +32,8 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
     /**
      * set venv
      */
-    const venvPath = getPythonEnv(options)
+    const venvPath = await getPythonEnv(options)
+    console.log('venvPath1', venvPath);
     let sourceVenv = ''
     if (venvPath) {
         sourceVenv = `source ${venvPath}/bin/activate && `
@@ -54,21 +55,21 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
      */
     const shell = process.env.SHELL || '/bin/bash'
 
-
     /**
      * set node path
      */
-    let exportPath = '';
+    let exportPath = 'export PATH="/sbin/:$PATH" &&';
     try {
         execSync('node -v', { stdio: 'ignore' });
     } catch (error) {
         const nodePath = path.dirname(process.env.NODE_PATH!);
         console.log('Setting NODE_PATH:', nodePath, shell);
-        exportPath = `export PATH="${nodePath}:$PATH" && `;
+        exportPath = exportPath + `export PATH="${nodePath}:$PATH" && `;
     }
 
 
     const command = `${exportPath} ${sourceVenv} ${shell} '${shellFilePath}' ${args}`;
+    console.log('command', command);
 
     const child = spawn(shell, ['-c', command], {
         cwd: projectPath,

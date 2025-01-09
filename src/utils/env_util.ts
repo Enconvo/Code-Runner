@@ -1,6 +1,9 @@
+import { install_miniconda } from "@/install_python.ts";
 import { Extension, RequestOptions } from "@enconvo/api"
 import { execSync } from 'child_process';
-import fs from "fs"
+import fs, { unlink, unlinkSync } from "fs"
+import os from "os"
+import path from "path";
 
 
 export function getProjectEnv(options: RequestOptions) {
@@ -31,7 +34,27 @@ export function getProjectEnv(options: RequestOptions) {
     return projectPath
 }
 
-export function getPythonEnv(options: RequestOptions) {
+function isPythonValid(venvPath: string) {
+
+    if (!fs.existsSync(venvPath)) {
+        return false
+    }
+
+    const pythonBinPath = `${venvPath}/bin/python`;
+    if (!fs.existsSync(pythonBinPath)) {
+        const originalPath = fs.readlinkSync(pythonBinPath);
+        if (!fs.existsSync(originalPath)) {
+            // rm -rf ${venvPath}
+            // unlinkSync(venvPath)
+            console.log('rm -rf ${venvPath}')
+            return false
+        }
+    }
+    return true
+}
+
+
+export async function getPythonEnv(options: RequestOptions) {
 
     let extensionName = options.extensionName || ''
 
@@ -56,10 +79,21 @@ export function getPythonEnv(options: RequestOptions) {
 
     const venvPath = `${cachePath}/venv`
 
+    let exportPath = 'export PATH="/sbin/:$PATH" &&';
+
+    try {
+        execSync('python --version', { stdio: 'ignore' });
+    } catch (error) {
+        const miniconda_path = path.join(os.homedir(), '.config/enconvo/preload/miniconda/bin')
+        console.log('Setting NODE_PATH:', miniconda_path);
+        exportPath = exportPath + `export PATH="${miniconda_path}:$PATH" && `;
+    }
+
     // // Check if the venv directory exists
-    if (!fs.existsSync(venvPath)) {
+    const isVenvValid = isPythonValid(venvPath)
+    if (!isVenvValid) {
         const newCode = `python -m venv venv`
-        const command = `/bin/bash -c "${newCode}"`;
+        const command = `${exportPath} /bin/bash -c "${newCode}"`;
         try {
             const result = execSync(command, {
                 shell: '/bin/bash',
@@ -70,10 +104,30 @@ export function getPythonEnv(options: RequestOptions) {
             console.log('resultStr', resultStr);
         } catch (error) {
             console.log('error', error)
-            return undefined
+            const installResult = await install_miniconda()
+            if (installResult) {
+                try {
+                    const result = execSync(command, {
+                        shell: '/bin/bash',
+                        cwd: cachePath,
+                        env: process.env
+                    });
+                    const resultStr = result.toString()
+                    // console.log('resultStr', resultStr);
+                } catch (error) {
+                    // console.log('error', error)
+                    return undefined
+                }
+            } else {
+                return undefined
+            }
+
         }
     }
 
-    console.log('venvPath', venvPath);
+
+
+
+
     return venvPath
 }
