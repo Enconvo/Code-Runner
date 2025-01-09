@@ -1,5 +1,5 @@
 import { EnconvoResponse, res } from '@enconvo/api';
-import { exec, execSync } from 'child_process';
+import { exec } from 'child_process';
 import { promisify } from 'util';
 import axios from 'axios';
 import fs, { rmdirSync } from 'fs';
@@ -21,9 +21,11 @@ export default async function main(): Promise<EnconvoResponse> {
 export async function install_miniconda() {
     const miniconda_path = path.join(os.homedir(), '.config/enconvo/preload/miniconda')
 
-    rmdirSync(miniconda_path, { recursive: true });
-    // Create the directory if it doesn't exist
-    fs.mkdirSync(miniconda_path, { recursive: true });
+    if (fs.existsSync(miniconda_path)) {
+        rmdirSync(miniconda_path, { recursive: true });
+    } else {
+        fs.mkdirSync(miniconda_path, { recursive: true });
+    }
 
     console.log(`downloading to miniconda_path: ${miniconda_path}`);
 
