@@ -1,4 +1,4 @@
-import { Extension, RequestOptions } from "@enconvo/api"
+import { Extension, RequestOptions, res } from "@enconvo/api"
 import { execSync } from 'child_process';
 import fs from "fs"
 
@@ -108,6 +108,7 @@ export function install_uv() {
     } catch (error) {
         // Install uv package manager if not found
         console.log("Installing uv package manager...");
+        res.writeLoading('initializing python environment ...');
         try {
             const result = execSync('curl -LsSf https://astral.sh/uv/install.sh | sh', {
                 shell: '/bin/bash'
