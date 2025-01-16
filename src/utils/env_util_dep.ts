@@ -1,6 +1,9 @@
+import { install_miniconda } from "@/install_python.ts";
 import { Extension, RequestOptions } from "@enconvo/api"
 import { execSync } from 'child_process';
 import fs from "fs"
+import os from "os"
+import path from "path";
 
 
 export function getProjectEnv(options: RequestOptions) {
@@ -71,52 +74,61 @@ export async function getPythonEnv(options: RequestOptions) {
     }
 
     const cachePath = Extension.getCommandCachePath(extensionName || '', commandName || '')
-    const projectPath = `${cachePath}/project`
 
-    const venvPath = `${projectPath}/.venv`
+    const venvPath = `${cachePath}/venv`
 
+    let exportPath = 'export PATH="/sbin/:$PATH" &&';
 
-    const uv_installed = install_uv()
+    try {
+        execSync('python --version', { stdio: 'ignore' });
+    } catch (error) {
+        const miniconda_path = path.join(os.homedir(), '.config/enconvo/preload/miniconda/bin')
+        if (fs.existsSync(miniconda_path)) {
+            console.log('Setting MINICONDA_PATH:', miniconda_path);
+            exportPath = exportPath + `export PATH="${miniconda_path}:$PATH" && `;
+        }
+    }
 
     // Check if the venv directory exists
     if (isVenvValid(venvPath)) {
         return venvPath
     }
 
-    const newCode = uv_installed ? `uv venv` : `python -m venv .venv`
-    const command = ` /bin/bash -c "${newCode}"`;
+    const newCode = `python -m venv venv`
+    const command = `${exportPath} /bin/bash -c "${newCode}"`;
     try {
         const result = execSync(command, {
             shell: '/bin/bash',
-            cwd: projectPath,
+            cwd: cachePath,
             env: process.env
         });
         const resultStr = result.toString()
         console.log('resultStr', resultStr);
     } catch (error) {
         console.log('error1', error)
-        return undefined
+        const installResult = await install_miniconda()
+        if (installResult) {
+            try {
+                const result = execSync(command, {
+                    shell: '/bin/bash',
+                    cwd: cachePath,
+                    env: process.env
+                });
+                const resultStr = result.toString()
+                // console.log('resultStr', resultStr);
+            } catch (error) {
+                console.log('error2', error)
+                return undefined
+            }
+        } else {
+            return undefined
+        }
+
     }
+
+
+
+
 
     return venvPath
-}
-
-
-export function install_uv() {
-    try {
-        console.log("uv --version", execSync('uv --version').toString());
-    } catch (error) {
-        // Install uv package manager if not found
-        console.log("Installing uv package manager...");
-        try {
-            const result = execSync('curl -LsSf https://astral.sh/uv/install.sh | sh', {
-                shell: '/bin/bash'
-            }).toString()
-            console.log("Successfully installed uv", result);
-        } catch (err) {
-            console.error("Failed to install uv:", err);
-            return false
-        }
-    }
-    return true
 }

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://enconvo.com/schemas/extension.json",
+  "$schema": "/Users/ysnows/Documents/Project/enconvo.com/public/schemas/extension.json",
   "name": "code_runner",
   "version": "0.0.2",
   "description": "Code Runner",
@@ -21,28 +21,31 @@
       "commandType": "tool",
       "showInCommandList": false,
       "parameters": {
-        "input_text": {
-          "type": "string",
-          "description": "The code to be executed or the args to be passed to the code"
-        },
-        "code": {
-          "type": "string",
-          "description": "The code to be executed"
-        },
-        "args": {
-          "type": "string",
-          "description": "The args to be passed to the code"
-        },
-        "code_environment": {
-          "type": "string",
-          "description": "The code environment to be executed on",
-          "enum": [
-            "zsh",
-            "bash",
-            "nodejs",
-            "applescript",
-            "python"
-          ]
+        "type": "object",
+        "properties": {
+          "input_text": {
+            "type": "string",
+            "description": "The code to be executed or the args to be passed to the code"
+          },
+          "code": {
+            "type": "string",
+            "description": "The code to be executed"
+          },
+          "args": {
+            "type": "string",
+            "description": "The args to be passed to the code"
+          },
+          "code_environment": {
+            "type": "string",
+            "description": "The code environment to be executed on",
+            "enum": [
+              "zsh",
+              "bash",
+              "nodejs",
+              "applescript",
+              "python"
+            ]
+          }
         }
       },
       "preferences": [
@@ -103,18 +106,24 @@
       "icon": "icon.png",
       "commandType": "tool",
       "parameters": {
-        "input_text": {
-          "type": "string",
-          "description": "The code to be executed or the args to be passed to the code"
+        "type": "object",
+        "properties": {
+          "input_text": {
+            "type": "string",
+            "description": "The code to be executed or the args to be passed to the code"
+          },
+          "shell_script": {
+            "type": "string",
+            "description": "The shell script to be executed, will be executed with `execFileSync('/bin/zsh', ['-c', shell_script], { env: process.env })` using nodejs, Since you can't interact with it, you have to use -y or --yes or a parameter to specify the default parameter for some commands, such as npm init -y, or npx create-next-app@latest project_name --yes;"
+          },
+          "args": {
+            "type": "string",
+            "description": "The args to be passed to the shell script"
+          }
         },
-        "shell_script": {
-          "type": "string",
-          "description": "The shell script to be executed, will be executed with `execFileSync('/bin/zsh', ['-c', shell_script], { env: process.env })` using nodejs, Since you can't interact with it, you have to use -y or --yes or a parameter to specify the default parameter for some commands, such as npm init -y, or npx create-next-app@latest project_name --yes;"
-        },
-        "args": {
-          "type": "string",
-          "description": "The args to be passed to the shell script"
-        }
+        "required": [
+          "shell_script"
+        ]
       },
       "preferences": [
         {
@@ -136,17 +145,20 @@
       "icon": "icon.png",
       "commandType": "tool",
       "parameters": {
-        "input_text": {
-          "type": "string",
-          "description": "The code to be executed or the args to be passed to the code"
-        },
-        "applescript": {
-          "type": "string",
-          "description": "The applescript to be executed, will be executed with `execFileSync('osascript', ['-e', applescript], { env: process.env })` using nodejs"
-        },
-        "args": {
-          "type": "string",
-          "description": "The args to be passed to the applescript"
+        "type": "object",
+        "properties": {
+          "input_text": {
+            "type": "string",
+            "description": "The code to be executed or the args to be passed to the code"
+          },
+          "applescript": {
+            "type": "string",
+            "description": "The applescript to be executed, will be executed with `execFileSync('osascript', ['-e', applescript], { env: process.env })` using nodejs"
+          },
+          "args": {
+            "type": "string",
+            "description": "The args to be passed to the applescript"
+          }
         }
       },
       "preferences": [
@@ -169,17 +181,20 @@
       "icon": "python.png",
       "commandType": "tool",
       "parameters": {
-        "input_text": {
-          "type": "string",
-          "description": "The code to be executed or the args to be passed to the code"
-        },
-        "python_code": {
-          "type": "string",
-          "description": "The python code to be executed, will be executed with `execFileSync('python', ['-c', python_code], { env: process.env })` using nodejs"
-        },
-        "args": {
-          "type": "string",
-          "description": "The args to be passed to the python code"
+        "type": "object",
+        "properties": {
+          "input_text": {
+            "type": "string",
+            "description": "The code to be executed or the args to be passed to the code"
+          },
+          "python_code": {
+            "type": "string",
+            "description": "The python code to be executed, will be executed with `execFileSync('python', ['-c', python_code], { env: process.env })` using nodejs"
+          },
+          "args": {
+            "type": "string",
+            "description": "The args to be passed to the python code"
+          }
         }
       },
       "preferences": [
@@ -202,17 +217,20 @@
       "icon": "nodejs.png",
       "commandType": "tool",
       "parameters": {
-        "input_text": {
-          "type": "string",
-          "description": "The code to be executed or the args to be passed to the code"
-        },
-        "nodejs_code": {
-          "type": "string",
-          "description": "The nodejs code to be executed, will be executed with `execFileSync('node', ['-e', nodejs_code], { env: process.env })` using nodejs"
-        },
-        "args": {
-          "type": "string",
-          "description": "The args to be passed to the nodejs code"
+        "type": "object",
+        "properties": {
+          "input_text": {
+            "type": "string",
+            "description": "The code to be executed or the args to be passed to the code"
+          },
+          "nodejs_code": {
+            "type": "string",
+            "description": "The nodejs code to be executed, will be executed with `execFileSync('node', ['-e', nodejs_code], { env: process.env })` using nodejs"
+          },
+          "args": {
+            "type": "string",
+            "description": "The args to be passed to the nodejs code"
+          }
         }
       },
       "preferences": [

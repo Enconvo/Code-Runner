@@ -31,5 +31,5 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
     });
 
     const resultStr = result.toString()
-    return resultStr || 'AppleScript Executed without any error';
+    return resultStr || 'AppleScript Executed successfully';
 }
