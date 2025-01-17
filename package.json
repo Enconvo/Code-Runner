@@ -1,9 +1,9 @@
 {
   "$schema": "/Users/ysnows/Documents/Project/enconvo.com/public/schemas/extension.json",
   "name": "code_runner",
-  "version": "0.0.2",
-  "description": "Code Runner",
-  "title": "Code Runner",
+  "version": "0.0.3",
+  "description": "Script Code Runner",
+  "title": "Script Code Runner",
   "icon": "icon.png",
   "author": "Enconvo",
   "categories": [
@@ -18,7 +18,7 @@
       "description": "Run code, shell , nodejs , python , bash, applescript...",
       "mode": "no-view",
       "icon": "icon.png",
-      "commandType": "tool",
+      "commandType": "function_command",
       "showInCommandList": false,
       "parameters": {
         "type": "object",
@@ -244,15 +244,6 @@
           "placeholder": "print('hello world')"
         }
       ]
-    },
-    {
-      "name": "python_interpreters",
-      "title": "Python Interpreter",
-      "description": "Get all Python interpreter path",
-      "icon": "python.png",
-      "showInCommandList": false,
-      "mode": "no-view",
-      "preferences": []
     }
   ],
   "dependencies": {
