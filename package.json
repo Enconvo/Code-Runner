@@ -114,7 +114,7 @@
           },
           "shell_script": {
             "type": "string",
-            "description": "The shell script to be executed, will be executed with `execFileSync('/bin/zsh', ['-c', shell_script], { env: process.env })` using nodejs, Since you can't interact with it, you have to use -y or --yes or a parameter to specify the default parameter for some commands, such as npm init -y, or npx create-next-app@latest project_name --yes;"
+            "description": "The shell script to be executed, will be executed with `execFileSync('/bin/zsh', ['-c', shell_script], { env: process.env })` using nodejs, Since you can't interact with it, you have to use -y or --yes or a parameter to specify the default parameter for some commands, such as npm init -y, or npx create-next-app@latest project_name --yes; Using ux for Python package management, like: uv pip install flask"
           },
           "args": {
             "type": "string",
