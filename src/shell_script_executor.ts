@@ -1,9 +1,7 @@
-import { Action, EnconvoResponse, RequestOptions, res } from '@enconvo/api';
+import { Response, Action, RequestOptions, res, getPythonEnv, getProjectEnv } from '@enconvo/api';
 import { execSync, spawn } from 'child_process';
-import { getProjectEnv, getPythonEnv } from './utils/env_util.ts';
 import fs from "fs"
-import path from 'path';
-import { arch, homedir } from 'os';
+import { homedir } from 'os';
 import { getArchitecture } from './utils/arch_util.ts';
 
 interface Options extends RequestOptions {
@@ -11,7 +9,7 @@ interface Options extends RequestOptions {
     args: string,
 }
 
-export default async function main(request: Request): Promise<EnconvoResponse> {
+export default async function main(request: Request): Promise<Response> {
     const options: Options = await request.json();
 
     let shell_script = options.shell_script
@@ -34,7 +32,8 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
     /**
      * set venv
      */
-    const venvPath = await getPythonEnv(options)
+    const venvPath = await getPythonEnv()
+
     console.log('venvPath1', venvPath);
     let sourceVenv = ''
     if (venvPath) {
@@ -44,7 +43,7 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
     /**
      * set project path
      */
-    const projectPath = getProjectEnv(options)
+    const projectPath = getProjectEnv()
 
     /**
      * write shell script

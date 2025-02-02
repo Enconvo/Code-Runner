@@ -1,6 +1,5 @@
-import { Action, EnconvoResponse, RequestOptions, res } from '@enconvo/api';
+import { Action, RequestOptions, res, Response,getProjectEnv } from '@enconvo/api';
 import { spawn } from 'child_process';
-import { getProjectEnv } from './utils/env_util.ts';
 import fs from "fs"
 
 interface Options extends RequestOptions {
@@ -8,7 +7,7 @@ interface Options extends RequestOptions {
     args: string,
 }
 
-export default async function main(request: Request): Promise<EnconvoResponse> {
+export default async function main(request: Request): Promise<Response> {
     const options: Options = await request.json();
 
     let nodejs_code = options.nodejs_code
@@ -28,7 +27,7 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
 
     let newCode = `${nodejs_code}`
 
-    const projectPath = getProjectEnv(options)
+    const projectPath = getProjectEnv()
 
     const nodejsFilePath = `${projectPath}/temp_script.js`;
     fs.writeFileSync(nodejsFilePath, newCode);

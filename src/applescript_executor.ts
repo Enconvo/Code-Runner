@@ -1,4 +1,4 @@
-import { EnconvoResponse, RequestOptions } from '@enconvo/api';
+import { RequestOptions, Response } from '@enconvo/api';
 import { execFileSync } from 'child_process';
 
 interface Options extends RequestOptions {
@@ -6,7 +6,7 @@ interface Options extends RequestOptions {
     args: string,
 }
 
-export default async function main(request: Request): Promise<EnconvoResponse> {
+export default async function main(request: Request): Promise<Response> {
     const options: Options = await request.json();
 
     let applescript = options.applescript

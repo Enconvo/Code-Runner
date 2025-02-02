@@ -1,4 +1,4 @@
-import { EnconvoResponse, RequestOptions } from '@enconvo/api';
+import { RequestOptions, Response, getProjectEnv } from '@enconvo/api';
 import { execFileSync, execSync } from 'child_process';
 
 interface Options extends RequestOptions {
@@ -10,7 +10,7 @@ interface Options extends RequestOptions {
     PYTHON_BIN_PATH: string
 }
 
-export default async function main(request: Request): Promise<EnconvoResponse> {
+export default async function main(request: Request): Promise<Response> {
     const options: Options = await request.json();
     const code = (options.code || options.input_text || '').trim();
 
