@@ -1,7 +1,7 @@
 {
   "$schema": "/Users/ysnows/Documents/Project/enconvo.com/public/schemas/extension.json",
   "name": "code_runner",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Script Code Runner",
   "title": "Script Code Runner",
   "icon": "icon.png",
@@ -123,6 +123,14 @@
           "cwd": {
             "type": "string",
             "description": "The working directory to be executed"
+          },
+          "need_run_in_background": {
+            "type": "boolean",
+            "description": "Whether to run the shell script in the background, Commands like `npm run dev` which will block the current process and need to be set to true."
+          },
+          "background_timeout": {
+            "type": "number",
+            "description": "The timeout to be used for the background command, default is 10 seconds"
           }
         },
         "required": [
