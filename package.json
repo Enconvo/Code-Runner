@@ -119,6 +119,10 @@
           "args": {
             "type": "string",
             "description": "The args to be passed to the shell script"
+          },
+          "cwd": {
+            "type": "string",
+            "description": "The working directory to be executed"
           }
         },
         "required": [

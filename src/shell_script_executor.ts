@@ -7,10 +7,12 @@ import { getArchitecture } from './utils/arch_util.ts';
 interface Options extends RequestOptions {
     shell_script: string,
     args: string,
+    cwd?: string,
 }
 
 export default async function main(request: Request): Promise<Response> {
     const options: Options = await request.json();
+    console.log("sessionId", options.session_id)
 
     let shell_script = options.shell_script
     if (!shell_script || shell_script.length <= 0) {
@@ -32,7 +34,9 @@ export default async function main(request: Request): Promise<Response> {
     /**
      * set venv
      */
-    const venvPath = await getPythonEnv()
+    const venvPath = await getPythonEnv({
+        cwd: options.cwd
+    })
 
     console.log('venvPath1', venvPath);
     let sourceVenv = ''
