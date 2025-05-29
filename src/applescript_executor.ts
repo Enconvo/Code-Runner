@@ -1,4 +1,4 @@
-import { RequestOptions, Response } from '@enconvo/api';
+import { Action, BaseChatMessage, RequestOptions, Response } from '@enconvo/api';
 import { execFileSync } from 'child_process';
 
 interface Options extends RequestOptions {
@@ -31,5 +31,13 @@ export default async function main(request: Request): Promise<Response> {
     });
 
     const resultStr = result.toString()
-    return resultStr || 'AppleScript Executed successfully';
+    return Response.messages([
+        BaseChatMessage.assistant([
+            {
+                type: 'text',
+                text: resultStr || 'AppleScript Executed successfully'
+            }
+        ])
+    ], [Action.Paste({ content: resultStr }),
+    Action.Copy({ content: resultStr })])
 }

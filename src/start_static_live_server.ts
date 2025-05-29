@@ -1,50 +1,34 @@
-import { Response, Action, RequestOptions, res, getPythonEnv, getProjectEnv, BaseChatMessage } from '@enconvo/api';
-import { spawn } from 'child_process';
+import { Response, Action, RequestOptions, res, getPythonEnv, getProjectEnv, FileUtil } from '@enconvo/api';
+import { exec, spawn } from 'child_process';
 import fsPromises from 'fs/promises'
+import { promisify } from 'util';
+
+const execSync = promisify(exec)
 
 interface Options extends RequestOptions {
-    shell_script: string,
-    args: string,
-    cwd?: string,
-    need_run_in_background?: boolean
-    background_timeout?: number
-    functionality_description?: string
+    port: number,
+    working_directory?: string,
 }
 
 export default async function main(request: Request): Promise<Response> {
     const options: Options = await request.json();
-    // console.log("need_run_in_background", options.need_run_in_background, options.background_timeout, options.functionality_description)
-    console.log("options", options)
 
+    const { port, working_directory } = options
+    console.log("port", options.port)
+    const need_run_in_background = false
 
-    let shell_script = 'node -v'
-    // let shell_script = options.shell_script.trim()
-    // if (!shell_script || shell_script.length <= 0) {
-    //     shell_script = options.input_text || ''
-    // }
-
-    if (shell_script === 'npm run dev' || shell_script === 'npm start' || shell_script === 'npm run start' || shell_script.includes('python -m http.server') || shell_script.includes('python3 -m http.server')) {
-        options.need_run_in_background = true
+    try {
+        await execSync(`kill -9 $(lsof -t -i:${port})`)
+    } catch (error) {
+        console.log("error", error)
     }
 
-    let argv = (options.args || '').trim().split(' ').filter(arg => arg)
-
-    if (argv.length <= 0) {
-        argv = options.shell_script ? [
-            options.input_text || ''
-        ] : []
-    }
-
-    const args = argv.filter(arg => arg && arg.trim().length > 0).map(arg => `"${arg}"`).join(' ').trim()
-
-    const newCode = `${shell_script}`
+    const newCode = `cd ${working_directory} && nohup bash -c "python3 -m http.server ${port} > /dev/null 2>&1 &"`
 
     /**
      * set venv
      */
-    const venvPath = await getPythonEnv({
-        cwd: options.cwd
-    })
+    const venvPath = await getPythonEnv()
 
     console.log('venvPath1', venvPath);
     let sourceVenv = ''
@@ -69,7 +53,7 @@ export default async function main(request: Request): Promise<Response> {
          * set shell
          */
         const shell = process.env.SHELL || '/bin/bash'
-        const command = `${sourceVenv} ${shell} '${shellFilePath}' ${args}`;
+        const command = `${sourceVenv} ${shell} '${shellFilePath}'`;
         console.log('command--', command);
 
         const child = spawn("/bin/bash", ['-c', command], {
@@ -84,14 +68,14 @@ export default async function main(request: Request): Promise<Response> {
             const chunk = data.toString();
             console.log("data:", chunk);
             output += chunk;
-            if (options.need_run_in_background) {
+            if (need_run_in_background) {
                 timer = setTimeout(() => {
                     console.log('run success');
                     resolve({
                         code: 0,
                         output
                     });
-                }, options.background_timeout || 1000 * 10);
+                }, 1000 * 3);
             } else {
                 timer = setTimeout(() => {
                     console.log('run success');
@@ -99,7 +83,7 @@ export default async function main(request: Request): Promise<Response> {
                         code: 0,
                         output
                     });
-                }, options.background_timeout || 1000 * 10);
+                }, 1000 * 3);
             }
 
             res.write({
@@ -129,14 +113,14 @@ export default async function main(request: Request): Promise<Response> {
 
     const resultStr = result.output
 
-    const finalResult = resultStr || ''
-    return Response.messages([
-        BaseChatMessage.assistant([
-            {
-                type: 'text',
-                text: finalResult
-            }
-        ])
-    ], [Action.Paste({ content: finalResult }),
-    Action.Copy({ content: finalResult })])
+    const finalResult = resultStr || `The live server is running on port ${port}, you can open it in your browser by clicking the following link: http://localhost:${port}`
+    console.log('finalResult', finalResult);
+    return {
+        type: "text",
+        content: finalResult,
+        actions: [
+            Action.Paste({ content: finalResult }),
+            Action.Copy({ content: finalResult })
+        ]
+    }
 }

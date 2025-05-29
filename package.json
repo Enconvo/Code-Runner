@@ -1,7 +1,7 @@
 {
   "$schema": "/Users/ysnows/Documents/Project/enconvo.com/public/schemas/extension.json",
   "name": "code_runner",
-  "version": "0.0.5",
+  "version": "0.0.10",
   "description": "Script Code Runner",
   "title": "Script Code Runner",
   "icon": "icon.png",
@@ -131,10 +131,50 @@
           "background_timeout": {
             "type": "number",
             "description": "The timeout to be used for the background command, default is 10 seconds"
+          },
+          "functionality_description": {
+            "type": "string",
+            "description": "Brief description of the script's functionality (max 20 characters)"
           }
         },
         "required": [
           "shell_script"
+        ]
+      },
+      "preferences": [
+        {
+          "name": "shell_script",
+          "title": "Shell Script",
+          "description": "The shell script to be run",
+          "type": "multiline_textfield",
+          "required": true,
+          "default": "",
+          "placeholder": "echo 'hello world:'$1"
+        }
+      ]
+    },
+    {
+      "name": "start_static_live_server",
+      "title": "Start Static Live Server",
+      "description": "Start a static live server",
+      "mode": "no-view",
+      "icon": "icon.png",
+      "commandType": "function_command",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "port": {
+            "type": "number",
+            "description": "The port to be used for the live server"
+          },
+          "working_directory": {
+            "type": "string",
+            "description": "The working directory to be executed"
+          }
+        },
+        "required": [
+          "port",
+          "working_directory"
         ]
       },
       "preferences": [

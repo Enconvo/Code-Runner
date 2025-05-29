@@ -1,4 +1,4 @@
-import { Action, RequestOptions, res, getPythonEnv, getProjectEnv, Response } from '@enconvo/api';
+import { Action, RequestOptions, res, getPythonEnv, getProjectEnv, Response, BaseChatMessage } from '@enconvo/api';
 import { spawn } from 'child_process';
 import fs from "fs"
 
@@ -78,12 +78,13 @@ export default async function main(request: Request): Promise<Response> {
 
     const finalResult = resultStr || 'Shell Script Executed without any error'
 
-    return {
-        type: "text",
-        content: finalResult,
-        actions: [
-            Action.Paste({ content: finalResult }),
-            Action.Copy({ content: finalResult })
-        ]
-    }
+    return Response.messages([
+        BaseChatMessage.assistant([
+            {
+                type: 'text',
+                text: finalResult
+            }
+        ])
+    ], [Action.Paste({ content: finalResult }),
+    Action.Copy({ content: finalResult })])
 }
