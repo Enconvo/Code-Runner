@@ -14,14 +14,13 @@ interface Options extends RequestOptions {
 export default async function main(request: Request): Promise<Response> {
     const options: Options = await request.json();
     // console.log("need_run_in_background", options.need_run_in_background, options.background_timeout, options.functionality_description)
-    console.log("options", options)
+    // console.log("options", options)
 
 
-    let shell_script = 'node -v'
-    // let shell_script = options.shell_script.trim()
-    // if (!shell_script || shell_script.length <= 0) {
-    //     shell_script = options.input_text || ''
-    // }
+    let shell_script = options.shell_script.trim()
+    if (!shell_script || shell_script.length <= 0) {
+        shell_script = options.input_text || ''
+    }
 
     if (shell_script === 'npm run dev' || shell_script === 'npm start' || shell_script === 'npm run start' || shell_script.includes('python -m http.server') || shell_script.includes('python3 -m http.server')) {
         options.need_run_in_background = true
