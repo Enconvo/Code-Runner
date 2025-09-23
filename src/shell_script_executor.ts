@@ -1,4 +1,4 @@
-import { Response, Action, RequestOptions, res, getPythonEnv, getProjectEnv, BaseChatMessage } from '@enconvo/api';
+import { Action, RequestOptions, res, getPythonEnv, getProjectEnv, BaseChatMessage, Alert, EnconvoResponse } from '@enconvo/api';
 import { spawn } from 'child_process';
 import fsPromises from 'fs/promises'
 
@@ -9,18 +9,51 @@ interface Options extends RequestOptions {
     need_run_in_background?: boolean
     background_timeout?: number
     functionality_description?: string
+    execute_permission?: {
+        value: 'always_allow' | 'always_ask' | 'ask_for_special_operation'
+    }
 }
 
-export default async function main(request: Request): Promise<Response> {
+export default async function main(request: Request): Promise<EnconvoResponse> {
     const options: Options = await request.json();
-    // console.log("need_run_in_background", options.need_run_in_background, options.background_timeout, options.functionality_description)
-    // console.log("options", options)
-
 
     let shell_script = options.shell_script.trim()
     if (!shell_script || shell_script.length <= 0) {
         shell_script = options.input_text || ''
     }
+
+
+    let isAskForSpecialOperation = false;
+    if (options.execute_permission?.value === 'ask_for_special_operation') {
+        // Split the shell_script by '&&' to handle multiple commands
+        const commands = shell_script.split('&&').map(cmd => cmd.trim());
+        console.log("commands", commands)
+        // Check if any command contains 'rm' or 'mv'
+        isAskForSpecialOperation = commands.some(cmd => cmd.includes('rm') || cmd.includes('mv'));
+    }
+
+    const isAlwaysAsk = options.execute_permission?.value === 'always_ask'
+    if (isAskForSpecialOperation || isAlwaysAsk) {
+
+        const alert = await Alert.show({
+            title: 'Shell Script Executor',
+            message: 'Are you sure you want to execute the shell script?',
+            confirm_button_text: 'Execute',
+            cancel_button_text: 'Cancel'
+        })
+
+        if (alert === 'cancel') {
+            return EnconvoResponse.messages([
+                BaseChatMessage.assistant([
+                    {
+                        type: 'text',
+                        text: 'User canceled the execution of the shell script'
+                    }
+                ])
+            ])
+        }
+    }
+
 
     if (shell_script === 'npm run dev' || shell_script === 'npm start' || shell_script === 'npm run start' || shell_script.includes('python -m http.server') || shell_script.includes('python3 -m http.server')) {
         options.need_run_in_background = true
@@ -129,7 +162,7 @@ export default async function main(request: Request): Promise<Response> {
     const resultStr = result.output
 
     const finalResult = resultStr || ''
-    return Response.messages([
+    return EnconvoResponse.messages([
         BaseChatMessage.assistant([
             {
                 type: 'text',

@@ -1,9 +1,9 @@
 {
   "$schema": "/Users/ysnows/Documents/Project/enconvo.com/public/schemas/extension.json",
   "name": "code_runner",
-  "version": "0.0.11",
+  "version": "0.0.72",
   "description": "Script Code Runner",
-  "title": "Script Code Runner",
+  "title": "Code Runner",
   "icon": "icon.png",
   "author": "Enconvo",
   "categories": [
@@ -100,7 +100,7 @@
     },
     {
       "name": "shell_script_executor",
-      "title": "Shell Script Executor",
+      "title": "Shell Runner",
       "description": "Run shell scripts",
       "mode": "no-view",
       "icon": "icon.png",
@@ -130,6 +130,31 @@
           "required": true,
           "default": "",
           "placeholder": "echo 'hello world:'$1"
+        },
+        {
+          "name": "execute_permission",
+          "title": "Execute Permission",
+          "description": "The execute permission",
+          "type": "dropdown",
+          "required": true,
+          "default": "ask_for_special_operation",
+          "data": [
+            {
+              "title": "Always Allow",
+              "value": "always_allow",
+              "description": "Always allow to run the shell script"
+            },
+            {
+              "title": "Always Ask",
+              "value": "always_ask",
+              "description": "Always ask for permission to run the shell script"
+            },
+            {
+              "title": "Ask For sensitive operation (rm, mv.)",
+              "value": "ask_for_special_operation",
+              "description": "Ask for permission to run the shell script for sensitive operations (rm, mv, etc.)"
+            }
+          ]
         }
       ]
     },
@@ -171,7 +196,7 @@
     },
     {
       "name": "applescript_executor",
-      "title": "AppleScript Executor",
+      "title": "AppleScript Runner",
       "description": "Run applescript",
       "mode": "no-view",
       "icon": "icon.png",
@@ -207,7 +232,7 @@
     },
     {
       "name": "python_code_runner",
-      "title": "Python Code Runner",
+      "title": "Python Runner",
       "description": "Run python code",
       "mode": "no-view",
       "icon": "python.png",
