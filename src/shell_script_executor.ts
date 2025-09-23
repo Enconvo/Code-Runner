@@ -27,7 +27,6 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
     if (options.execute_permission?.value === 'ask_for_special_operation') {
         // Split the shell_script by '&&' to handle multiple commands
         const commands = shell_script.split('&&').map(cmd => cmd.trim());
-        console.log("commands", commands)
         // Check if any command contains 'rm' or 'mv'
         isAskForSpecialOperation = commands.some(cmd => cmd.includes('rm') || cmd.includes('mv'));
     }
@@ -36,9 +35,9 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
     if (isAskForSpecialOperation || isAlwaysAsk) {
 
         const alert = await Alert.show({
-            title: 'Shell Script Executor',
-            message: 'Are you sure you want to execute the shell script?',
-            confirm_button_text: 'Execute',
+            title: 'Are you sure you want to run the shell script?',
+            message: `${shell_script}`,
+            confirm_button_text: 'Run',
             cancel_button_text: 'Cancel'
         })
 
@@ -47,7 +46,7 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
                 BaseChatMessage.assistant([
                     {
                         type: 'text',
-                        text: 'User canceled the execution of the shell script'
+                        text: 'User canceled the running of the shell script'
                     }
                 ])
             ])
