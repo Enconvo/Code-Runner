@@ -1,4 +1,4 @@
-import { Action, RequestOptions, res, getPythonEnv, getProjectEnv, BaseChatMessage, Alert, EnconvoResponse } from '@enconvo/api';
+import { Action, RequestOptions, res, getPythonEnv, getProjectEnv, BaseChatMessage, Alert, EnconvoResponse, Runtime } from '@enconvo/api';
 import { spawn } from 'child_process';
 import fsPromises from 'fs/promises'
 
@@ -161,6 +161,14 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
     const resultStr = result.output
 
     const finalResult = resultStr || ''
+
+    if (!Runtime.isInteractiveMode()) {
+        return EnconvoResponse.json({
+            result: finalResult
+        })
+    }
+
+
     return EnconvoResponse.messages([
         BaseChatMessage.assistant([
             {

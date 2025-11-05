@@ -1,7 +1,7 @@
 {
   "$schema": "/Users/ysnows/Documents/Project/enconvo.com/public/schemas/extension.json",
   "name": "code_runner",
-  "version": "0.0.72",
+  "version": "0.0.80",
   "description": "Script Code Runner",
   "title": "Code Runner",
   "icon": "icon.png",
