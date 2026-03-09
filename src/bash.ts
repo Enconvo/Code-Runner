@@ -16,7 +16,7 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
     try {
 
         const options: Options = await request.json();
-        console.log("running shell script executor1", JSON.stringify(options, null, 2));
+        // console.log("running shell script executor1", JSON.stringify(options, null, 2));
 
         let command = options.command
         if (!command || command.length <= 0) {
@@ -46,29 +46,26 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
         /**
          * set venv
          */
-        // const venvPath = await getPythonEnv({
-        //     cwd: options.workDir
-        // })
-        const venvPath = '/Users/ysnows/.enconvo/workspace/Bash/.venv'
+        const venvPath = await getPythonEnv({
+            cwd: options.workDir
+        })
 
         console.log('venvPath2', venvPath);
         let sourceVenv = ''
         console.log('venvPath3', venvPath);
         if (venvPath) {
-            // sourceVenv = `source ${venvPath}/bin/activate && `
+            sourceVenv = `source ${venvPath}/bin/activate && `
         }
 
         /**
          * set project path
          */
-        console.log('projectPath1',);
         const projectPath = await getProjectEnv({
             cwd: options.workDir
         })
-        console.log('projectPath2',);
+        console.log('projectPath2', projectPath);
         FileUtil.ensureDirExist(projectPath)
 
-        console.log('projectPath', projectPath);
 
         const shell = process.env.SHELL || '/bin/bash'
         const fullCommand = `${sourceVenv}${newCode}${args ? ' ' + args : ''}`;
@@ -102,19 +99,19 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
                 const chunk = data.toString();
                 console.log("data:", chunk);
                 output += chunk;
-                res.write({
-                    content: chunk,
-                    action: EnconvoResponse.WriteAction.AppendToLastMessageLastTextContent
-                })
+                // res.write({
+                //     content: chunk,
+                //     action: EnconvoResponse.WriteAction.AppendToLastMessageLastTextContent
+                // })
             });
 
             child.stderr.on('data', (data) => {
                 const chunk = data.toString();
                 console.log("error data:", chunk);
-                res.write({
-                    content: chunk,
-                    action: EnconvoResponse.WriteAction.AppendToLastMessageLastTextContent
-                })
+                // res.write({
+                //     content: chunk,
+                //     action: EnconvoResponse.WriteAction.AppendToLastMessageLastTextContent
+                // })
                 output += chunk;
             });
 
@@ -126,7 +123,7 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
         const resultStr = result.output
 
         const finalResult = resultStr || ''
-        console.log('finalResult', finalResult)
+        // console.log('finalResult', finalResult)
 
         if (!Runtime.isInteractiveMode()) {
             try {
