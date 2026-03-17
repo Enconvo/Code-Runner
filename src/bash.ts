@@ -1,5 +1,6 @@
 import { Action, RequestOptions, getPythonEnv, getProjectEnv, BaseChatMessage, EnconvoResponse, Runtime, FileUtil, res } from '@enconvo/api';
 import { exec, execSync, spawn } from 'child_process';
+import { rtkRewrite } from './utils/rtk_util.js';
 
 const DEFAULT_TIMEOUT = 2 * 60 * 1000;
 
@@ -7,8 +8,9 @@ interface Options extends RequestOptions {
     command: string,
     args: string,
     workDir?: string,
-    run_in_background?: boolean
-    timeout?: number
+    run_in_background?: boolean,
+    timeout?: number,
+    enableRtk?: boolean
 }
 
 
@@ -37,9 +39,25 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
 
 
         let newCode = `${command}`
-        // Replace standalone 'pip' and 'pip3' that are NOT preceded by 'uv '
-        newCode = newCode.replace(/(?<!uv\s)pip3\b/g, 'uv pip');
-        newCode = newCode.replace(/(?<!uv\s)pip\b/g, 'uv pip');
+
+        // Try RTK rewrite for token-optimized output
+        let rtkApplied = false
+        if (options.enableRtk) {
+            const fullCmd = args ? `${newCode} ${args}` : newCode
+            const rewritten = rtkRewrite(fullCmd)
+            if (rewritten) {
+                newCode = rewritten
+                rtkApplied = true
+                console.log('RTK rewrote command:', fullCmd, '->', rewritten)
+            }
+        }
+
+        // Replace pip/pip3 with uv pip (skip if RTK handled the command,
+        // since RTK's pip module auto-detects uv)
+        if (!rtkApplied) {
+            newCode = newCode.replace(/(?<!uv\s)pip3\b/g, 'uv pip');
+            newCode = newCode.replace(/(?<!uv\s)pip\b/g, 'uv pip');
+        }
 
         console.log('newCode', newCode);
 
@@ -68,7 +86,7 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
 
 
         const shell = process.env.SHELL || '/bin/bash'
-        const fullCommand = `${sourceVenv}${newCode}${args ? ' ' + args : ''}`;
+        const fullCommand = `${sourceVenv}${newCode}${!rtkApplied && args ? ' ' + args : ''}`;
         console.log('command--', fullCommand);
 
         const timeout = options.timeout || DEFAULT_TIMEOUT;
@@ -135,10 +153,7 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
 
             }
 
-
-            return EnconvoResponse.json({
-                result: finalResult
-            })
+            return finalResult
         }
 
 
