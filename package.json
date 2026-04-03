@@ -1,7 +1,7 @@
 {
   "$schema": "/Users/ysnows/Documents/Project/enconvo.com/public/schemas/extension.json",
   "name": "code_runner",
-  "version": "0.0.134",
+  "version": "0.0.135",
   "description": "Shell command execution tool that runs bash/zsh commands with automatic Python virtual environment activation, configurable working directory, and timeout handling.",
   "title": "Code Runner",
   "icon": "icon.png",
@@ -74,10 +74,10 @@
     "axios": "^1.7.9"
   },
   "devDependencies": {
-    "@types/node": "^22.10.2",
+    "@types/node": "^25.5.0",
     "eslint": "^9.17.0",
     "prettier": "^3.4.2",
-    "tsup": "^8.3.5",
+    "tsup": "^8.5.1",
     "typescript": "^5.7.2",
     "vitest": "^4.1.0"
   },
@@ -90,6 +90,12 @@
     "dev": "enconvo dev --dev",
     "test": "vitest run",
     "test:watch": "vitest"
+  },
+  "lifecycle": {
+    "onAppStarted": {
+      "type": "api",
+      "path": "code_runner/on_app_started"
+    }
   },
   "minAppVersion": "1.8.8"
 }

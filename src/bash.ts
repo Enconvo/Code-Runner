@@ -1,5 +1,5 @@
-import { Action, RequestOptions, getPythonEnv, getProjectEnv, BaseChatMessage, EnconvoResponse, Runtime, FileUtil, res } from '@enconvo/api';
-import { exec, execSync, spawn } from 'child_process';
+import { Action, RequestOptions, getPythonEnv, getProjectEnv, BaseChatMessage, EnconvoResponse, Runtime, FileUtil } from '@enconvo/api';
+import { spawn } from 'child_process';
 import { rtkRewrite } from './utils/rtk_util.js';
 
 const DEFAULT_TIMEOUT = 2 * 60 * 1000;

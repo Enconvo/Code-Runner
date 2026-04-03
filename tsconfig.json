@@ -2,13 +2,14 @@
   "compilerOptions": {
     "allowImportingTsExtensions": true,
     "strict": true,
+    "isolatedModules": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist",
-    "lib": ["ES2021", "ES2022.Object", "DOM"],
-    "target": "ES2021",
-    "module": "nodenext",
+    "lib": ["ES2023","DOM"],
+    "target": "ES2022",
+    "module": "commonjs",
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./src",
@@ -23,8 +24,11 @@
     "noUnusedParameters": true,
     "useDefineForClassFields": true,
     "strictPropertyInitialization": false,
-    "noEmit": true
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "types": ["node"]
   },
   "exclude": ["node_modules/", "dist/", "tests/"],
-  "include": ["./src", "../../examples/src/tts.ts", "src/deepl_translate_provider.ts"]
+  "include": ["src/**/*"],
 }
