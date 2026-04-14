@@ -1,7 +1,7 @@
 {
   "$schema": "/Users/ysnows/Documents/Project/enconvo.com/public/schemas/extension.json",
   "name": "code_runner",
-  "version": "0.0.135",
+  "version": "0.0.142",
   "description": "Shell command execution tool that runs bash/zsh commands with automatic Python virtual environment activation, configurable working directory, and timeout handling.",
   "title": "Code Runner",
   "icon": "icon.png",

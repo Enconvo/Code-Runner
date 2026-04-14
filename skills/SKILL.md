@@ -4,7 +4,7 @@ description: >
   Shell command execution tool that runs bash/zsh commands with automatic Python virtual environment activation, configurable working directory, and timeout handling.
 metadata:
   author: Enconvo
-  version: "0.0.135"
+  version: "0.0.142"
 ---
 
 ## API Reference
