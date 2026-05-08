@@ -2,7 +2,7 @@ import { Action, RequestOptions, getPythonEnv, getProjectEnv, BaseChatMessage, E
 import { spawn } from 'child_process';
 import { rtkRewrite } from './utils/rtk_util.js';
 
-const DEFAULT_TIMEOUT = 2 * 60 * 1000;
+const DEFAULT_TIMEOUT = 30 * 60 * 1000;
 
 interface Options extends RequestOptions {
     command: string,
@@ -16,7 +16,6 @@ interface Options extends RequestOptions {
 
 export default async function main(request: Request): Promise<EnconvoResponse> {
     try {
-
         const options: Options = await request.json();
         // console.log("running shell script executor1", JSON.stringify(options, null, 2));
 
@@ -79,11 +78,11 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
          * set project path
          */
         const projectPath = await getProjectEnv({
-            cwd: options.workDir
+            cwd: options.workDir,
+            // createSession:true
         })
         console.log('projectPath2', projectPath);
         FileUtil.ensureDirExist(projectPath)
-
 
         const shell = process.env.SHELL || '/bin/bash'
         const fullCommand = `${sourceVenv}${newCode}${!rtkApplied && args ? ' ' + args : ''}`;
@@ -95,7 +94,8 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
             const child = spawn(shell, ['-c', fullCommand], {
                 cwd: projectPath,
                 env: process.env,
-                stdio: ['ignore', 'pipe', 'pipe']
+                stdio: ['ignore', 'pipe', 'pipe'],
+                signal: request.signal
             });
 
             let output = '';
@@ -112,6 +112,11 @@ export default async function main(request: Request): Promise<EnconvoResponse> {
                 child.kill();
                 doResolve(1);
             }, timeout);
+
+            child.on('error', (err) => {
+                console.log('bash child error:', err);
+                doResolve(1);
+            });
 
             child.stdout.on('data', (data) => {
                 const chunk = data.toString();
